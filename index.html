@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I miei Badge Personali</title>
+    <title>La mia Galleria dei Badge</title>
     <style>
         body {
             background-color: #1e1f22;
@@ -12,8 +12,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .box {
             background-color: #2b2d31;
@@ -21,15 +23,19 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             text-align: center;
+            max-width: 700px;
+            width: 100%;
         }
-        input[type="password"] {
+        input, select {
             padding: 10px;
             border-radius: 4px;
             border: 1px solid #1e1f22;
             background-color: #1e1f22;
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
+            width: 80%;
+            margin-bottom: 15px;
         }
         button {
             padding: 10px 20px;
@@ -38,18 +44,29 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
+            margin: 5px;
         }
         button:hover { background-color: #4752c4; }
+        .btn-add { background-color: #248046; }
+        .btn-add:hover { background-color: #1a6535; }
+        .btn-danger { background-color: #da373c; }
+        .btn-danger:hover { background-color: #a92b2f; }
         .hidden { display: none !important; }
         
-        /* Grafica dell'area dei Badge */
-        .badge-container {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
+        /* Griglia della Galleria */
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background-color: #111214;
+            border-radius: 8px;
             margin-top: 20px;
+            min-height: 80px;
+            justify-items: center;
+            align-items: center;
         }
         .badge-wrapper {
             position: relative;
@@ -57,15 +74,16 @@
             cursor: pointer;
         }
         .badge-wrapper img {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
             transition: transform 0.2s;
         }
         .badge-wrapper:hover img {
-            transform: scale(1.1);
+            transform: scale(1.15);
         }
         
-        /* Fumetto al passaggio del mouse (Tooltip) */
+        /* Fumetto Tooltip */
         .tooltip {
             visibility: hidden;
             width: 140px;
@@ -75,8 +93,8 @@
             border-radius: 5px;
             padding: 6px 10px;
             position: absolute;
-            z-index: 1;
-            bottom: 125%;
+            z-index: 10;
+            bottom: 130%;
             left: 50%;
             margin-left: -80px;
             opacity: 0;
@@ -84,11 +102,24 @@
             font-size: 13px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             pointer-events: none;
+            word-wrap: break-word;
         }
         .badge-wrapper:hover .tooltip {
             visibility: visible;
             opacity: 1;
         }
+
+        /* Menu di Personalizzazione Modale */
+        .modal {
+            background-color: #313338;
+            border: 2px solid #5865f2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .modal h3 { margin-top: 0; text-align: center;}
+        .modal label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 14px;}
     </style>
 </head>
 <body>
@@ -102,37 +133,124 @@
         <p id="error-msg" style="color: #fa777c; font-size: 14px;" class="hidden">Password errata, riprova!</p>
     </div>
 
-    <!-- Schermata Principale dei Badge (Nascosta all'inizio) -->
+    <!-- Schermata Principale dell'App Galleria -->
     <div id="badge-board" class="box hidden">
-        <h2>👑 La mia Bacheca Vencord 👑</h2>
-        <p>Passa il mouse sopra un distintivo per vederne i dettagli:</p>
+        <h2>👑 La mia Galleria Interattiva 👑</h2>
+        <p>Gestisci i tuoi distintivi personalizzati e passaci sopra col mouse:</p>
         
-        <div class="badge-container">
-            
-            <!-- BADGE 1: CORONA ANIMATA -->
-            <div class="badge-wrapper">
-                <img src="https://emoji.gg/emoji/2586-purplecrown" alt="Corona">
-                <div class="tooltip">Owner di Sgabirro Hub</div>
-            </div>
+        <!-- Pulsanti di Controllo -->
+        <button class="btn-add" onclick="toggleMenu()">➕ Aggiungi Immagine</button>
+        <button class="btn-danger" onclick="clearAllBadges()">🗑️ Svuota Galleria</button>
 
-            <!-- BADGE 2: STELLINE -->
-            <div class="badge-wrapper">
-                <img src="https://discordapp.com" alt="Stelline">
-                <div class="tooltip">Membro Verificato ✨</div>
-            </div>
+        <!-- Menu di Personalizzazione (Nascosto all'inizio) -->
+        <div id="custom-menu" class="modal hidden">
+            <h3>🎨 Menu Personalizzazione Badge</h3>
             
+            <label>1. Nome del Badge (Testo che compare col mouse):</label>
+            <input type="text" id="badge-name" placeholder="Esempio: Proprietario Animato ✨">
+            
+            <label>2. Link dell'immagine (URL della PNG o GIF):</label>
+            <input type="text" id="badge-url" placeholder="Incolla il link che finisce in .png o .gif...">
+            
+            <div style="text-align: center; margin-top: 10px;">
+                <button onclick="saveNewBadge()">Conferma e Inserisci</button>
+                <button class="btn-danger" onclick="toggleMenu()">Annulla</button>
+            </div>
+        </div>
+
+        <!-- Contenitore della Griglia dei Badge -->
+        <div id="gallery-grid" class="badge-grid">
+            <!-- I badge compariranno qui dentro in automatico -->
         </div>
     </div>
 
     <script>
+        // Array locale per contenere i badge di base preimpostati
+        const defaultBadges = [
+            { name: "Proprietario del Progetto (Animato)", url: "https://ibb.co" },
+            { name: "Membro Verificato ✨", url: "https://ibb.co" }
+        ];
+
+        // Controlla la Password
         function checkPassword() {
             const input = document.getElementById("password-field").value;
-            // IMPORTANTE: Puoi cambiare la parola "segreto99" con la password che preferisci tu!
             if (input === "segreto99") {
                 document.getElementById("login-box").classList.add("hidden");
                 document.getElementById("badge-board").classList.remove("hidden");
+                loadGallery(); // Carica i badge salvati
             } else {
                 document.getElementById("error-msg").classList.remove("hidden");
+            }
+        }
+
+        // Mostra/Nasconde il menu di personalizzazione
+        function toggleMenu() {
+            const menu = document.getElementById("custom-menu");
+            menu.classList.toggle("hidden");
+            // Svuota i campi
+            document.getElementById("badge-name").value = "";
+            document.getElementById("badge-url").value = "";
+        }
+
+        // Carica i badge sullo schermo prendendoli dalla memoria locale
+        function loadGallery() {
+            const grid = document.getElementById("gallery-grid");
+            grid.innerHTML = ""; // Svuota la griglia grafica
+
+            // Prende i badge salvati nel browser, se non ci sono usa quelli di base
+            let savedBadges = localStorage.getItem("myCustomBadges");
+            let badges = savedBadges ? JSON.parse(savedBadges) : defaultBadges;
+
+            // Genera la grafica per ogni badge
+            badges.forEach((badge) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "badge-wrapper";
+
+                const img = document.createElement("img");
+                img.src = badge.url;
+                img.alt = badge.name;
+                // Gestione errore se il link inserito non è valido
+                img.onerror = function() { this.src = 'https://ibb.co'; };
+
+                const tooltip = document.createElement("div");
+                tooltip.className = "tooltip";
+                tooltip.innerText = badge.name;
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(tooltip);
+                grid.appendChild(wrapper);
+            });
+        }
+
+        // Salva un nuovo badge inserito dal menu di personalizzazione
+        function saveNewBadge() {
+            const nameInput = document.getElementById("badge-name").value.trim();
+            const urlInput = document.getElementById("badge-url").value.trim();
+
+            if (!nameInput || !urlInput) {
+                alert("Per favore, compila sia il nome che il link dell'immagine!");
+                return;
+            }
+
+            let savedBadges = localStorage.getItem("myCustomBadges");
+            let badges = savedBadges ? JSON.parse(savedBadges) : [...defaultBadges];
+
+            // Aggiunge il nuovo badge personalizzato all'elenco
+            badges.push({ name: nameInput, url: urlInput });
+
+            // Salva l'elenco aggiornato nel browser
+            localStorage.setItem("myCustomBadges", JSON.stringify(badges));
+
+            // Ricarica la grafica ed esce dal menu
+            loadGallery();
+            toggleMenu();
+        }
+
+        // Svuota la galleria e ripristina solo quelli di base
+        function clearAllBadges() {
+            if (confirm("Sei sicuro di voler cancellare tutti i badge aggiunti?")) {
+                localStorage.removeItem("myCustomBadges");
+                loadGallery();
             }
         }
     </script>
