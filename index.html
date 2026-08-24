@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I miei Badge Personali</title>
+    <style>
+        body {
+            background-color: #1e1f22;
+            color: #dbdee1;
+            font-family: 'GG Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .box {
+            background-color: #2b2d31;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        input[type="password"] {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #1e1f22;
+            background-color: #1e1f22;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #5865f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #4752c4; }
+        .hidden { display: none !important; }
+        
+        /* Grafica dell'area dei Badge */
+        .badge-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .badge-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .badge-wrapper img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.2s;
+        }
+        .badge-wrapper:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Fumetto al passaggio del mouse (Tooltip) */
+        .tooltip {
+            visibility: hidden;
+            width: 140px;
+            background-color: #111214;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 6px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -80px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 13px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        .badge-wrapper:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Schermata di Accesso con Password -->
+    <div id="login-box" class="box">
+        <h2>🔒 Area Riservata Badge</h2>
+        <p>Inserisci la chiave segreta per accedere alla bacheca:</p>
+        <input type="password" id="password-field" placeholder="Password...">
+        <button onclick="checkPassword()">Accedi</button>
+        <p id="error-msg" style="color: #fa777c; font-size: 14px;" class="hidden">Password errata, riprova!</p>
+    </div>
+
+    <!-- Schermata Principale dei Badge (Nascosta all'inizio) -->
+    <div id="badge-board" class="box hidden">
+        <h2>👑 La mia Bacheca Vencord 👑</h2>
+        <p>Passa il mouse sopra un distintivo per vederne i dettagli:</p>
+        
+        <div class="badge-container">
+            
+            <!-- BADGE 1: CORONA ANIMATA -->
+            <div class="badge-wrapper">
+                <img src="https://discordapp.com" alt="Corona">
+                <div class="tooltip">Proprietario del Progetto (Animato)</div>
+            </div>
+
+            <!-- BADGE 2: STELLINE -->
+            <div class="badge-wrapper">
+                <img src="https://discordapp.com" alt="Stelline">
+                <div class="tooltip">Membro Verificato ✨</div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            const input = document.getElementById("password-field").value;
+            // IMPORTANTE: Puoi cambiare la parola "segreto99" con la password che preferisci tu!
+            if (input === "segreto99") {
+                document.getElementById("login-box").classList.add("hidden");
+                document.getElementById("badge-board").classList.remove("hidden");
+            } else {
+                document.getElementById("error-msg").classList.remove("hidden");
+            }
+        }
+    </script>
+</body>
+</html>
